@@ -4,12 +4,14 @@
 
 FROM node
 
+ENV NPM_CONFIG_LOGLEVEL warn
+
 RUN mkdir -p /backend
 WORKDIR /backend
 COPY ./ ./
 
-RUN npm install
+RUN npm install --force
 ENTRYPOINT ["npm"]
 CMD ["run", "start:dev"]
 
-EXPOSE 3000
+EXPOSE 3000 

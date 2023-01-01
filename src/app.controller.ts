@@ -62,7 +62,7 @@ export class AppController {
   @HttpCode(HttpStatus.OK)
   @Get('test2')
   async test2(@Res() res: Response) {
-    const testFile1 = `https://raw.githubusercontent.com/romdhanisam/open-template/main/projects/scllib/src/tests/files/samples/test1.xml`;
+    const testFile1 = `https://raw.githubusercontent.com/open-template/open-template/main/projects/scllib/src/tests/files/samples/test1.xml`;
     try {
       return this.scllibService.unmarshalURL(testFile1)
         .pipe(
