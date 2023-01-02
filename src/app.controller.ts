@@ -1,14 +1,14 @@
-// SPDX-FileCopyrightText: 2023 Samir Romdhani <samir.romdhani1994@gmail.com>
+// SPDX-FileCopyrightText: 2022 2023 Samir Romdhani <samir.romdhani1994@gmail.com>
 //
 // SPDX-License-Identifier: MIT license
 
 import { Controller, Get, HttpCode, HttpStatus, Res } from '@nestjs/common';
 import { Response } from "express";
 import { AppService } from './app.service';
-import { _SCLType } from '@opentemplate/scl-lib';
+import { _SCLType, _tIED } from '@opentemplate/scl-lib';
 import { ScllibService } from '@opentemplate/scl-lib-rest';
-import * as uuid from "uuid";
 import { map, tap } from 'rxjs';
+import { SCLElement } from '@opentemplate/scl-lib-adapter-way';
 
 const namespaces: any = {
   namespacePrefixes: {
@@ -25,38 +25,37 @@ export class AppController {
       this.scllibService.setContext(namespaces);
     }
 
-  @Get()
+  @Get('hello')
   getHello(): string {
     return this.appService.getHello();
   }
 
   @HttpCode(HttpStatus.OK)
   @Get('test1')
-  async test1(@Res() res: Response) {
-    const scl: _SCLType = {
-      release: 4,
-      revision: "B",
-      version: "2007",
-      header: {
-        id: uuid.v4()
-      }
-    };
-    try {
-      return this.scllibService.marshalDocument({ SCL: scl })
-        .pipe(
-          map((data) => {
-            res.set('Content-Type', 'text/xml');
-            return res.status(200).send(data.toString());
-          }),
-          tap({
-            error:(err: Error) =>  {
-              return res.status(500).send(err.message);
-            }
-          }))
-        .subscribe()
-    } catch (err) {
-      throw err;
-    } 
+  async test1(@Res() response: Response) {
+    const scl: SCLElement = this.appService.init();
+    this.appService.init2().subscribe((res)  => {
+      for (let index = 0; index < 1; index++) {
+        scl.addIED(res, "TEST"+index);
+      };
+      try {
+        return this.scllibService.marshalDocument({ SCL: scl.getElement() })
+          .pipe(
+            map((data) => {
+              console.log("DONE");
+              response.set('Content-Type', 'text/xml');
+              return response.status(200).send(data.toString());
+            }),
+            tap({
+              error:(err: Error) =>  {
+                return response.status(500).send(err.message);
+              }
+            }))
+          .subscribe()
+      } catch (err) {
+        throw err;
+      } 
+    });
   }
 
   @HttpCode(HttpStatus.OK)
